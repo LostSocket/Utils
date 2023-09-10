@@ -9,14 +9,14 @@ namespace Utils.DOTween
     public static class DOTweenExtensions
     {
         private const int CacheSize = 1000;
-        private static readonly LRUCache<Transform, Vector3> initialScales = new LRUCache<Transform, Vector3>(CacheSize);
+        private static readonly LRUCache<Transform, Vector3> _initialScales = new(CacheSize);
 
         public static Tweener DoSafeShakeScale(this Transform transform, float duration, Vector3 strength, int vibrato = 10,
             float randomness = 90)
         {
-            if (!initialScales.Contains(transform))
+            if (!_initialScales.Contains(transform))
             {
-                initialScales.Add(transform, transform.localScale);
+                _initialScales.Add(transform, transform.localScale);
             }
 
             return transform.DOShakeScale(duration, strength, vibrato, randomness)
@@ -26,7 +26,7 @@ namespace Utils.DOTween
 
         private static void RestoreScale(Transform transform)
         {
-            if (initialScales.TryGet(transform, out Vector3 originalScale))
+            if (_initialScales.TryGet(transform, out Vector3 originalScale))
             {
                 transform.localScale = originalScale;
             }
