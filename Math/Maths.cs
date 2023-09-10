@@ -18,5 +18,15 @@ namespace Utils.Math
         {
             return includeAlpha ? new Color(Random.value, Random.value, Random.value, Random.value) : new Color(Random.value, Random.value, Random.value);
         }
+    
+        public static Vector3 V2FromNum(float x)
+        {
+            return new Vector2(x, x);
+        }
+        
+        public static Vector3 V3FromNum(float x)
+        {
+            return new Vector3(x, x, x);
+        }
     }
 }
