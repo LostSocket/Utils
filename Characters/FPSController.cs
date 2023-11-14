@@ -25,15 +25,15 @@ public class FPSController : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        
+        // Lock cursor
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
-
-        // Lock cursor
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
     }
     
 
