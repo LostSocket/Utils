@@ -6,10 +6,10 @@ using UnityEditor;
 #endif
 using UnityEngine;
 
-namespace Assets.Scripts.Utils
+namespace Assets.Scripts.Utils.Interaction
 {
 
-        public static class S_Utils
+        public static class InteractionUtils
         {
             private static System.Random rng = new System.Random();
 
