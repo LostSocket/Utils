@@ -58,7 +58,7 @@ public class TaskScheduler : MonoBehaviour
 
     public ScheduledTask Schedule(Action action, float delay)
     {
-        ScheduledTask task = new() { ToExecute = action, Delay = delay, Interval = delay };
+        ScheduledTask task = new() { ToExecute = action, Delay = delay, Interval = delay, RepeatCount = 1 };
         _tasks.Add(task);
         return task;
     }
