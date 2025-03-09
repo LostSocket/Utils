@@ -83,6 +83,8 @@ public class TaskScheduler : MonoBehaviour
         {
             task.Cancel();
         }
+        _tasks.Clear();
+        _tasksToCancel.Clear();
     }
 }
 }
