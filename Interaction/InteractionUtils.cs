@@ -8,12 +8,11 @@ using UnityEngine;
 
 namespace Assets.Scripts.Utils.Interaction
 {
-
         public static class InteractionUtils
         {
-            private static System.Random rng = new System.Random();
+            private static readonly System.Random Rng = new System.Random();
 
-            private static readonly bool kDebugCollidersFromRectTransform = false;
+            private static readonly bool KDebugCollidersFromRectTransform = false;
 
             public static bool CheckInteractiveObjectInList(InteractiveObject _io, List<InteractiveObject> _list)
             {
@@ -27,11 +26,11 @@ namespace Assets.Scripts.Utils.Interaction
                 return false;
             }
 
-            public static bool IsEventHandlerRegistered(Delegate prospectiveHandler, Action[] _handlers)
+            public static bool IsEventHandlerRegistered(Delegate _prospectiveHandler, Action[] _handlers)
             {
-                foreach (Delegate existingHandler in _handlers)
+                foreach (Delegate existing_handler in _handlers)
                 {
-                    if (existingHandler == prospectiveHandler)
+                    if (existing_handler == _prospectiveHandler)
                     {
                         return true;
                     }
@@ -39,16 +38,14 @@ namespace Assets.Scripts.Utils.Interaction
                 return false;
             }
 
-            public static void Shuffle<T>(this IList<T> list)
+            public static void Shuffle<T>(this IList<T> _list)
             {
-                int n = list.Count;
+                int n = _list.Count;
                 while (n > 1)
                 {
                     n--;
-                    int k = rng.Next(n + 1);
-                    T value = list[k];
-                    list[k] = list[n];
-                    list[n] = value;
+                    int k = Rng.Next(n + 1);
+                    (_list[k], _list[n]) = (_list[n], _list[k]);
                 }
             }
 
@@ -111,9 +108,9 @@ namespace Assets.Scripts.Utils.Interaction
                 return GetIOFromGameObject((GameObject)_obj);
             }
 
-            public static InteractiveObject GetIOFromGameObject(GameObject _go, bool includeInactive = false)
+            public static InteractiveObject GetIOFromGameObject(GameObject _go, bool _includeInactive = false)
             {
-                return _go.GetComponentInParent<InteractiveObject>(includeInactive);
+                return _go.GetComponentInParent<InteractiveObject>(_includeInactive);
             }
 
             public static void EnsureFieldIsPositiveOrZero(ref float _val)
@@ -135,39 +132,39 @@ namespace Assets.Scripts.Utils.Interaction
             public static BoxCollider BoundColliderToMeshes(GameObject _obj)
             {
                 // Unparent the object and set it's rotation to 0
-                Transform lastParent = _obj.transform.parent;
+                Transform last_parent = _obj.transform.parent;
                 _obj.transform.SetParent(null);
-                Quaternion lastRotation = _obj.transform.rotation;
+                Quaternion last_rotation = _obj.transform.rotation;
                 _obj.transform.rotation = Quaternion.identity;
 
                 // Get the bounds of the object' meshes
-                Bounds globalBounds = GetMinimumBoxOfSkinMesh(_obj);
+                Bounds global_bounds = GetMinimumBoxOfSkinMesh(_obj);
 
                 BoxCollider collider = _obj.GetOrAddComponent<BoxCollider>();
-                collider.center = globalBounds.center;
-                collider.size = globalBounds.size;
+                collider.center = global_bounds.center;
+                collider.size = global_bounds.size;
 
                 // Rotate the object back
-                _obj.transform.rotation = lastRotation;
-                _obj.transform.SetParent(lastParent);
+                _obj.transform.rotation = last_rotation;
+                _obj.transform.SetParent(last_parent);
 
                 return collider;
             }
 
-            private const float kMinColliderThicknessFromRectTransform = 0.01f;
-            public static Vector3 GetColliderSizeFromRectTransform(RectTransform rt)
+            private const float KMinColliderThicknessFromRectTransform = 0.01f;
+            public static Vector3 GetColliderSizeFromRectTransform(RectTransform _rt)
             {
                 Vector3 size = Vector3.one;
-                if (rt != null)
+                if (_rt != null)
                 {
                     try
                     {
                         Vector3[] v = new Vector3[4];
-                        rt.GetWorldCorners(v);
+                        _rt.GetWorldCorners(v);
 
-                        size = new Vector3(Vector3.Magnitude(v[0] - v[3]), Vector3.Magnitude(v[0] - v[1]), kMinColliderThicknessFromRectTransform);
+                        size = new Vector3(Vector3.Magnitude(v[0] - v[3]), Vector3.Magnitude(v[0] - v[1]), KMinColliderThicknessFromRectTransform);
 
-                        if (kDebugCollidersFromRectTransform)
+                        if (KDebugCollidersFromRectTransform)
                         {
                             for (int i = 0; i < v.Length; i++)
                             {
@@ -195,15 +192,15 @@ namespace Assets.Scripts.Utils.Interaction
                 return size;
             }
 
-            public static void SetColliderSizeFromRectTransform(RectTransform rt, ref BoxCollider bc)
+            public static void SetColliderSizeFromRectTransform(RectTransform _rt, ref BoxCollider _bc)
             {
-                if (rt != null)
+                if (_rt != null)
                 {
-                    if (bc != null)
+                    if (_bc != null)
                     {
-                        Vector3 size = GetColliderSizeFromRectTransform(rt);
-                        bc.size = new Vector3(size.x / bc.transform.lossyScale.x,
-                            size.y / bc.transform.lossyScale.y, size.z / bc.transform.lossyScale.z);
+                        Vector3 size = GetColliderSizeFromRectTransform(_rt);
+                        _bc.size = new Vector3(size.x / _bc.transform.lossyScale.x,
+                            size.y / _bc.transform.lossyScale.y, size.z / _bc.transform.lossyScale.z);
                     }
                     else
                     {
@@ -224,64 +221,64 @@ namespace Assets.Scripts.Utils.Interaction
             public static Bounds GetMinimumBoxOfSkinMesh(GameObject _obj)
             {
                 Renderer[] meshes = _obj.GetComponentsInChildren<Renderer>();
-                Bounds bounds = new Bounds();
+                Bounds bounds;
 
-                float maxX = float.MinValue;
-                float minX = float.MaxValue;
+                float max_x = float.MinValue;
+                float min_x = float.MaxValue;
 
-                float maxY = float.MinValue;
-                float minY = float.MaxValue;
+                float max_y = float.MinValue;
+                float min_y = float.MaxValue;
 
-                float maxZ = float.MinValue;
-                float minZ = float.MaxValue;
+                float max_z = float.MinValue;
+                float min_z = float.MaxValue;
 
                 for (int i = 0; i < meshes.Length; i++)
                 {
                     bounds = meshes[i].bounds;
 
-                    if (bounds.min.x < minX)
+                    if (bounds.min.x < min_x)
                     {
-                        minX = bounds.min.x;
+                        min_x = bounds.min.x;
                     }
 
-                    if (bounds.max.x > maxX)
+                    if (bounds.max.x > max_x)
                     {
-                        maxX = bounds.max.x;
+                        max_x = bounds.max.x;
                     }
 
-                    if (bounds.min.y < minY)
+                    if (bounds.min.y < min_y)
                     {
-                        minY = bounds.min.y;
+                        min_y = bounds.min.y;
                     }
 
-                    if (bounds.max.y > maxY)
+                    if (bounds.max.y > max_y)
                     {
-                        maxY = bounds.max.y;
+                        max_y = bounds.max.y;
                     }
 
-                    if (bounds.min.z < minZ)
+                    if (bounds.min.z < min_z)
                     {
-                        minZ = bounds.min.z;
+                        min_z = bounds.min.z;
                     }
 
-                    if (bounds.max.z > maxZ)
+                    if (bounds.max.z > max_z)
                     {
-                        maxZ = bounds.max.z;
+                        max_z = bounds.max.z;
                     }
                 }
 
-                Vector3 min = new Vector3(minX, minY, minZ);
-                Vector3 max = new Vector3(maxX, maxY, maxZ);
+                Vector3 min = new Vector3(min_x, min_y, min_z);
+                Vector3 max = new Vector3(max_x, max_y, max_z);
 
-                Vector3 minToMax = max - min;
-                Vector3 center = min + minToMax / 2f;
+                Vector3 min_to_max = max - min;
+                Vector3 center = min + min_to_max / 2f;
 
-                Bounds toReturn = new Bounds()
+                Bounds to_return = new Bounds()
                 {
                     center = center,
-                    size = minToMax
+                    size = min_to_max
                 };
-                return toReturn;
+                return to_return;
             }
 
             /// <summary>
@@ -307,15 +304,15 @@ namespace Assets.Scripts.Utils.Interaction
                 }
 
                 // First Scale the object to match the container dimensions
-                Bounds targetBounds = GetMinimumBoxOfSkinMesh(_target);
-                Bounds containerBounds = GetMinimumBoxOfSkinMesh(_container);
+                Bounds target_bounds = GetMinimumBoxOfSkinMesh(_target);
+                Bounds container_bounds = GetMinimumBoxOfSkinMesh(_container);
 
-                Vector3 compressRatio = new Vector3(
-                        containerBounds.size.x / targetBounds.size.x,
-                        containerBounds.size.y / targetBounds.size.y,
-                        containerBounds.size.z / targetBounds.size.z);
+                Vector3 compress_ratio = new Vector3(
+                        container_bounds.size.x / target_bounds.size.x,
+                        container_bounds.size.y / target_bounds.size.y,
+                        container_bounds.size.z / target_bounds.size.z);
 
-                _target.transform.localScale *= GetMinCoordinateOf(compressRatio);
+                _target.transform.localScale *= GetMinCoordinateOf(compress_ratio);
 
 
                 if (!_moveToTransform)
@@ -324,9 +321,9 @@ namespace Assets.Scripts.Utils.Interaction
                 // Move the object to the correct position using the bounds offsets
                 // Important to compensate the pivot points
                 _target.transform.position = _container.transform.position;
-                targetBounds = GetMinimumBoxOfSkinMesh(_target);
-                containerBounds = GetMinimumBoxOfSkinMesh(_container);
-                _target.transform.position += containerBounds.center - targetBounds.center;
+                target_bounds = GetMinimumBoxOfSkinMesh(_target);
+                container_bounds = GetMinimumBoxOfSkinMesh(_container);
+                _target.transform.position += container_bounds.center - target_bounds.center;
 
 
                 for (int i = chilldren.Count - 1; i >= 0; --i)
@@ -356,15 +353,13 @@ namespace Assets.Scripts.Utils.Interaction
             /// <param name="_direction"> Direction of the ray </param>
             /// <param name="_maxDistance"> Max detection distance </param>
             /// <param name="_sortByDistance"> Do we want the objects sorted by detection distance </param>
+            /// <param name="_layerMask"> Mask to target when performing the raycast </param>
             /// <returns></returns>
             public static List<T> RaycastOnlyObjectsContaining<T>(Vector3 _position, Vector3 _direction, float _maxDistance, bool _sortByDistance = false, int _layerMask = -1) where T : Component
             {
                 RaycastHit[] hits = Raycast(_position, _direction, _maxDistance, _layerMask, _sortByDistance);
 
-                if (hits.Length == 0)
-                    return new List<T>();
-
-                return GetHitsOnlyContaining<T>(hits);
+                return hits.Length == 0 ? new List<T>() : GetHitsOnlyContaining<T>(hits);
             }
 
             /// <summary>
@@ -375,27 +370,25 @@ namespace Assets.Scripts.Utils.Interaction
             /// <returns></returns>
             public static List<T> GetHitsOnlyContaining<T>(RaycastHit[] _hits) where T : Component
             {
-                List<T> toReturn = new List<T>();
+                List<T> to_return = new List<T>();
 
-                T obj = null;
                 for (int i = 0; i < _hits.Length; i++)
                 {
-                    obj = _hits[i].collider.GetComponent<T>();
+                    var obj = _hits[i].collider.GetComponent<T>();
                     if (obj != null)
-                        toReturn.Add(obj);
+                        to_return.Add(obj);
                 }
 
-                return toReturn;
+                return to_return;
             }
 
             public static RaycastHit[] Raycast(Vector3 _position, Vector3 _direction, float _maxDistance, int _layer, bool _sort)
             {
                 RaycastHit[] hits;
 
-                if (_layer == -1)
-                    hits = Physics.RaycastAll(_position, _direction, _maxDistance);
-                else
-                    hits = Physics.RaycastAll(_position, _direction, _maxDistance, _layer);
+                hits = _layer == -1
+                    ? Physics.RaycastAll(_position, _direction, _maxDistance)
+                    : Physics.RaycastAll(_position, _direction, _maxDistance, _layer);
 
                 if (_sort)
                     hits.RaycastSort(_position, _direction);
@@ -407,10 +400,9 @@ namespace Assets.Scripts.Utils.Interaction
             {
                 RaycastHit[] hits;
 
-                if (_layer != -1)
-                    hits = Physics.SphereCastAll(_position, _maxDistance, _direciton, _layer);
-                else
-                    hits = Physics.SphereCastAll(_position, _maxDistance, _direciton);
+                hits = _layer != -1
+                    ? Physics.SphereCastAll(_position, _maxDistance, _direciton, _layer)
+                    : Physics.SphereCastAll(_position, _maxDistance, _direciton);
 
                 if (_sort)
                     hits.RaycastSort(_position, _direciton);
@@ -418,25 +410,21 @@ namespace Assets.Scripts.Utils.Interaction
                 return hits;
             }
 
-            public static void RaycastSort(this RaycastHit[] hits, Vector3 _origin, Vector3 _direction)
+            public static void RaycastSort(this RaycastHit[] _hits, Vector3 _origin, Vector3 _direction)
             {
                 // Bubble sort the hits
-                RaycastHit temp;
-                float d1, d2;
-                Ray ray = new Ray(_origin, _direction);
-                for (int i = 0; i < hits.Length; i++)
+                var ray = new Ray(_origin, _direction);
+                for (var i = 0; i < _hits.Length; i++)
                 {
-                    for (int j = 0; j < hits.Length - 1; j++)
+                    for (var j = 0; j < _hits.Length - 1; j++)
                     {
                         // NOTE(4nc3str4l): Get the distance from the raycast line to the center for each element
                         // As closer of the center the more interest of the user to select it. (Distance doesn't effect)
-                        d1 = Vector3.Cross(ray.direction, hits[j].collider.bounds.center - ray.origin).magnitude;
-                        d2 = Vector3.Cross(ray.direction, hits[j + 1].collider.bounds.center - ray.origin).magnitude;
+                        var d1 = Vector3.Cross(ray.direction, _hits[j].collider.bounds.center - ray.origin).magnitude;
+                        var d2 = Vector3.Cross(ray.direction, _hits[j + 1].collider.bounds.center - ray.origin).magnitude;
                         if (d1 > d2)
                         {
-                            temp = hits[j + 1];
-                            hits[j + 1] = hits[j];
-                            hits[j] = temp;
+                            (_hits[j + 1], _hits[j]) = (_hits[j], _hits[j + 1]);
                         }
                     }
                 }
@@ -451,7 +439,7 @@ namespace Assets.Scripts.Utils.Interaction
             /// <returns></returns>
             public static List<T> GetElementsFromANotInB<T>(List<T> _A, List<T> _B)
             {
-                List<T> elementsANotInB = new List<T>();
+                List<T> elements_a_not_in_b = new List<T>();
 
                 int counter = _A.Count;
                 for (int i = 0; i < counter; i++)
@@ -459,64 +447,62 @@ namespace Assets.Scripts.Utils.Interaction
                     T element = _A[i];
                     if (!_B.Contains(element))
                     {
-                        elementsANotInB.Add(element);
+                        elements_a_not_in_b.Add(element);
                     }
                 }
 
-                return elementsANotInB;
+                return elements_a_not_in_b;
             }
 
             public static float GetClosestToNumberInList(float _num, float[] _list)
             {
-                float toReturn = -1;
-                float minDistance = float.MaxValue;
-                float tmpDistance = float.MaxValue;
-                for (int i = 0; i < _list.Length; ++i)
+                float to_return = -1;
+                float min_distance = float.MaxValue;
+                float tmp_distance = float.MaxValue;
+                foreach (var t in _list)
                 {
-                    tmpDistance = Mathf.Abs(_list[i] - _num);
-                    if (tmpDistance < minDistance)
+                    tmp_distance = Mathf.Abs(t - _num);
+                    if (tmp_distance < min_distance)
                     {
-                        toReturn = _list[i];
-                        minDistance = tmpDistance;
+                        to_return = t;
+                        min_distance = tmp_distance;
                     }
                 }
-                return toReturn;
+                return to_return;
             }
             /// <summary>
             /// Convert a number belonging to interval A to its correspective in interval B
             /// </summary>
-            /// <param name="_ANum"></param>
-            /// <param name="_AMin"></param>
-            /// <param name="_AMax"></param>
-            /// <param name="_BMin"></param>
-            /// <param name="_BMax"></param>
+            /// <param name="_aNum"></param>
+            /// <param name="_aMin"></param>
+            /// <param name="_aMax"></param>
+            /// <param name="_bMin"></param>
+            /// <param name="_bMax"></param>
             /// <returns></returns>
 
-            public static float ConvertNumberFromIntevalAToB(float _ANum, float _AMin, float _AMax, float _BMin, float _BMax)
+            public static float ConvertNumberFromIntevalAToB(float _aNum, float _aMin, float _aMax, float _bMin, float _bMax)
             {
-                return _BMin + ((_ANum - _AMin) / (_AMax - _AMin)) * (_BMax - _BMin);
+                return _bMin + ((_aNum - _aMin) / (_aMax - _aMin)) * (_bMax - _bMin);
             }
 
-            public static List<T> Shuffle<T>(List<T> list)
+            public static List<T> Shuffle<T>(List<T> _list)
             {
                 System.Random rnd = new System.Random();
-                for (int i = 0; i < list.Count; i++)
+                for (int i = 0; i < _list.Count; i++)
                 {
                     int k = rnd.Next(0, i);
-                    T value = list[k];
-                    list[k] = list[i];
-                    list[i] = value;
+                    (_list[k], _list[i]) = (_list[i], _list[k]);
                 }
-                return list;
+                return _list;
             }
         }
 
         public static class ExtensionMethods
         {
 
-            public static float Remap(this float value, float from1, float to1, float from2, float to2)
+            public static float Remap(this float _value, float _from1, float _to1, float _from2, float _to2)
             {
-                return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+                return (_value - _from1) / (_to1 - _from1) * (_to2 - _from2) + _from2;
             }
         }
 
@@ -528,10 +514,10 @@ namespace Assets.Scripts.Utils.Interaction
     [CustomPropertyDrawer(typeof(ReadOnlyAttribute))]
     public class ReadOnlyDrawer : PropertyDrawer
     {
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        public override void OnGUI(Rect _position, SerializedProperty _property, GUIContent _label)
         {
             GUI.enabled = false;
-            EditorGUI.PropertyField(position, property, label, true);
+            EditorGUI.PropertyField(_position, _property, _label, true);
             GUI.enabled = true;
         }
     }
