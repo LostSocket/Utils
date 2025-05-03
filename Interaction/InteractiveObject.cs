@@ -5,7 +5,6 @@ namespace Assets.Scripts.Utils.Interaction
 {
     public abstract class InteractiveObject : MonoBehaviour
     {
-        public KeyCode InteractKey = KeyCode.E;
         public string Name = "Interactive Object";
         public string InteractionDescription = "Pickup";
 
